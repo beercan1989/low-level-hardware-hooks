@@ -1,4 +1,4 @@
 package co.uk.baconi.activity.framework.interfaces;
 
-public interface FactoryType<T extends FactoryType<T>> {
+public interface FactoryType<Type extends FactoryType<Type>> {
 }

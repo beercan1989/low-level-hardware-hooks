@@ -10,21 +10,21 @@ import co.uk.baconi.activity.framework.exceptions.UnsupportedFactoryType;
 import co.uk.baconi.activity.framework.exceptions.UnsupportedOperationSytem;
 import co.uk.baconi.activity.framework.interfaces.FactoryType;
 
-abstract class AbstractFactory<T extends FactoryType<T>, W extends T, X extends T> {
+abstract class AbstractFactory<Type extends FactoryType<Type>, WindowsImplementation extends Type, X11Implementation extends Type> {
 
     private final Log log = LogFactory.getLog(getClass());
 
     private final PlatformType platformType;
-    private final Class<W> windowsType;
-    private final Class<X> x11Type;
+    private final Class<WindowsImplementation> windowsType;
+    private final Class<X11Implementation> x11Type;
 
-    protected AbstractFactory(final Class<W> windowsType, final Class<X> x11Type) {
+    protected AbstractFactory(final Class<WindowsImplementation> windowsType, final Class<X11Implementation> x11Type) {
         this.windowsType = windowsType;
         this.x11Type = x11Type;
         platformType = PlatformType.getPlatformType();
     }
 
-    public final T createInstance() {
+    public final Type createInstance() {
         if (platformType.equals(PlatformType.WINDOWS)) {
             return createInstance(windowsType);
         }
@@ -36,11 +36,11 @@ abstract class AbstractFactory<T extends FactoryType<T>, W extends T, X extends 
         throw new UnsupportedOperationSytem(platformType);
     }
 
-    private T createInstance(final Class<? extends T> clazz) {
+    private Type createInstance(final Class<? extends Type> clazz) {
         try {
-            final Constructor<? extends T> constructor = clazz.getDeclaredConstructor();
+            final Constructor<? extends Type> constructor = clazz.getDeclaredConstructor();
             constructor.setAccessible(true);
-            final T result = constructor.newInstance();
+            final Type result = constructor.newInstance();
             constructor.setAccessible(false);
             return result;
         } catch (final Throwable t) {
