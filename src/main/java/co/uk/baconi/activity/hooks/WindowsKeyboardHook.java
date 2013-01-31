@@ -2,7 +2,7 @@ package co.uk.baconi.activity.hooks;
 
 import static co.uk.baconi.utils.StringUtil.COMMA;
 import static co.uk.baconi.utils.StringUtil.concat;
-import co.uk.baconi.activity.Logger;
+import co.uk.baconi.utils.LoggerUtil;
 import co.uk.baconi.utils.TimeUtil;
 
 import com.sun.jna.platform.win32.User32;
@@ -18,7 +18,7 @@ public final class WindowsKeyboardHook implements LowLevelKeyboardProc {
     private static final String[] LOG_HEADINGS = { "wParam", "vkCode", "flags", "scanCode", "dwExtraInfo", "time",
             "Year-Month-Day", "Hour:Minute:Second:Millisecond" };
 
-    private static final Logger LOGGER = Logger.getLogger("KeyHookLog.csv", false, true, LOG_HEADINGS);
+    private static final LoggerUtil LOGGER = LoggerUtil.getLogger("KeyHookLog.csv", false, true, LOG_HEADINGS);
 
     private final WindowsKeyboardHookParent parent;
 

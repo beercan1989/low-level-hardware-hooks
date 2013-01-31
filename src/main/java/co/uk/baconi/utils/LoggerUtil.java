@@ -1,4 +1,4 @@
-package co.uk.baconi.activity;
+package co.uk.baconi.utils;
 
 import static co.uk.baconi.utils.StringUtil.COMMA;
 import static co.uk.baconi.utils.StringUtil.join;
@@ -7,12 +7,12 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 
-public final class Logger {
+public final class LoggerUtil {
     private final File loggingFile;
     private final boolean writeToFile;
     private final boolean writeToConsole;
 
-    private Logger(final File loggingFile, final boolean writeToFile, final boolean writeToConsole,
+    private LoggerUtil(final File loggingFile, final boolean writeToFile, final boolean writeToConsole,
             final String... headings) {
         this.loggingFile = loggingFile;
         this.writeToFile = writeToFile;
@@ -60,21 +60,21 @@ public final class Logger {
         }
     }
 
-    public static Logger getLogger(final String filename, final boolean writeToFile, final boolean writeToConsole,
+    public static LoggerUtil getLogger(final String filename, final boolean writeToFile, final boolean writeToConsole,
             final String... headings) {
         return getLogger(new File(filename), writeToFile, writeToConsole, headings);
     }
 
-    public static Logger getLogger(final File loggingFile, final boolean writeToFile, final boolean writeToConsole,
+    public static LoggerUtil getLogger(final File loggingFile, final boolean writeToFile, final boolean writeToConsole,
             final String... headings) {
-        return new Logger(loggingFile, writeToFile, writeToConsole, headings);
+        return new LoggerUtil(loggingFile, writeToFile, writeToConsole, headings);
     }
 
-    public static Logger getLogger(final String filename) {
+    public static LoggerUtil getLogger(final String filename) {
         return getLogger(new File(filename));
     }
 
-    public static Logger getLogger(final File loggingFile) {
-        return new Logger(loggingFile, true, true);
+    public static LoggerUtil getLogger(final File loggingFile) {
+        return new LoggerUtil(loggingFile, true, true);
     }
 }
