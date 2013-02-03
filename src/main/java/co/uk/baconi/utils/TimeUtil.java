@@ -1,8 +1,8 @@
 package co.uk.baconi.utils;
 
-import static co.uk.baconi.utils.StringUtil.COLON;
-import static co.uk.baconi.utils.StringUtil.HYPHEN;
-import static co.uk.baconi.utils.StringUtil.UNDER_SCORE;
+import static co.uk.baconi.keylogger.framework.constants.Strings.COLON;
+import static co.uk.baconi.keylogger.framework.constants.Strings.HYPHEN;
+import static co.uk.baconi.keylogger.framework.constants.Strings.UNDER_SCORE;
 
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinBase.SYSTEMTIME;

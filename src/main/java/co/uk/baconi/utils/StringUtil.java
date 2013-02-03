@@ -1,13 +1,6 @@
 package co.uk.baconi.utils;
 
 public final class StringUtil {
-    public static final String EMPTY = "";
-    public static final String COMMA = ",";
-    public static final String SPACE = " ";
-    public static final String COLON = ":";
-    public static final String HYPHEN = "-";
-    public static final String UNDER_SCORE = "_";
-
     private StringUtil() {
     }
 

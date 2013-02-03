@@ -1,11 +1,13 @@
 package co.uk.baconi.utils;
 
-import static co.uk.baconi.utils.StringUtil.COMMA;
+import static co.uk.baconi.keylogger.framework.constants.Strings.COMMA;
 import static co.uk.baconi.utils.StringUtil.join;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+
+import co.uk.baconi.keylogger.framework.constants.Numbers;
 
 public final class LoggerUtil {
     private final File loggingFile;
@@ -18,7 +20,7 @@ public final class LoggerUtil {
         this.writeToFile = writeToFile;
         this.writeToConsole = writeToConsole;
 
-        if (headings != null && headings.length > 1) {
+        if (headings != null && headings.length > Numbers.ONE) {
             final String headingString = join(COMMA, headings);
             if (this.writeToFile && !loggingFile.exists()) {
                 logToFile(headingString);
