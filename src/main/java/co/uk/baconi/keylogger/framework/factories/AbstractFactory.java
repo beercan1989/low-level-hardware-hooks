@@ -23,7 +23,7 @@ abstract class AbstractFactory<Type extends FactoryType<Type>, WindowsImplementa
         platformType = PlatformType.getPlatformType();
     }
 
-    public final Type createInstance() {
+    public final Type create() {
         if (platformType.equals(PlatformType.WINDOWS)) {
             return createInstance(windowsType);
         }

@@ -30,7 +30,7 @@ public abstract class FactoryTestSuite<T extends FactoryType<T>, W extends T, X 
 
     @Test
     public void shouldBeAbleToCreateFromFactory() {
-        final T factoryCreated = instance.createInstance();
+        final T factoryCreated = instance.create();
 
         assertThat(factoryCreated, is(not(nullValue())));
 

