@@ -3,7 +3,7 @@ package co.uk.baconi.keylogger.framework.impl;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-abstract class AbstractImpl<T> {
+public abstract class AbstractImpl<T> {
 
     private final BlockingQueue<T> processQueue = new LinkedBlockingQueue<T>();
 
